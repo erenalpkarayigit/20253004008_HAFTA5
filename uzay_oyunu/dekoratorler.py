@@ -178,3 +178,27 @@ def hafiza(maxsize: int | None = None) -> Callable[[Callable[..., Any]], Callabl
         return sarmalayici
 
     return dekorator
+
+
+if __name__ == "__main__":
+    import json
+    from pathlib import Path
+
+    print("=== Hafta 5 Görev 1: Önbelleksiz Rota Sayacı (adim=20) Süre Ölçümü ===")
+    json_yolu = Path(__file__).parent / "galaksi.json"
+    with open(json_yolu, "r", encoding="utf-8") as f:
+        galaksi = json.load(f)
+    baglantilar = galaksi["baglantilar"]
+
+    def rota_sayisi_onbelleksiz(gezegen: str, adim: int) -> int:
+        if adim == 0:
+            return 1
+        return sum(
+            rota_sayisi_onbelleksiz(komsu, adim - 1)
+            for komsu in baglantilar.get(gezegen, [])
+        )
+
+    olculen_rota_sayisi = sure_olc(rota_sayisi_onbelleksiz)
+    print("Hesaplanıyor (adim=20)...")
+    toplam_rota = olculen_rota_sayisi("dünya", 20)
+    print(f"Hesaplanan Rota Sayısı: {toplam_rota}")
