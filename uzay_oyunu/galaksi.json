@@ -13,17 +13,20 @@
     ],
     "centauri": [
       "dünya",
-      "orion"
+      "orion",
+      "kara_delik"
     ],
     "sirius": [
       "dünya",
-      "centauri",
       "orion"
     ],
     "orion": [
-      "kara_delik"
+      "centauri",
+      "sirius"
     ],
-    "kara_delik": []
+    "kara_delik": [
+      "centauri"
+    ]
   },
   "baslangic": "dünya",
   "yakit": 100
