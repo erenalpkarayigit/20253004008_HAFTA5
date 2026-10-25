@@ -55,3 +55,15 @@ def test_travel_stop_iteration_yakit_bitti(capsys):
     travel(galaksi, girdi_saglayici=lambda _: next(hamleler), tuketim=10)
     out = capsys.readouterr().out
     assert "Yakıtın bitti, uzayda sürükleniyorsun…" in out
+
+from pathlib import Path
+from uzay_oyunu.akis import satirlari_oku, ayristir, uzun_yolculuklar
+import inspect
+
+
+def test_seyir_defteri_boru_hatti():
+    yol = Path(__file__).parent.parent / "veri" / "seyir.txt"
+    assert sum(y for _, _, y in ayristir(satirlari_oku(yol))) == 88
+    kayitlar = ayristir(satirlari_oku(yol))
+    assert [h for _, h, _ in uzun_yolculuklar(kayitlar, 10)] == ["sirius", "centauri", "orion", "kara_delik"]
+    assert inspect.isgenerator(satirlari_oku(yol))

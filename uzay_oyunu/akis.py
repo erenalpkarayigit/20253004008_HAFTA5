@@ -27,3 +27,32 @@ def yakit_gostergesi(yakit: int, tuketim: int) -> Generator[int, None, None]:
     while kalan > 0:
         kalan = max(0, kalan - tuketim)
         yield kalan
+
+from pathlib import Path
+from collections.abc import Iterable
+
+
+def satirlari_oku(yol: str | Path) -> Generator[str, None, None]:
+    """Dosyayı satır satır okuyarak boş ve '#' ile başlayan satırları atlayan üreteç."""
+    with open(yol, "r", encoding="utf-8") as dosya:
+        for satir in dosya:
+            temiz = satir.strip()
+            if not temiz or temiz.startswith("#"):
+                continue
+            yield temiz
+
+
+def ayristir(satirlar: Iterable[str]) -> Generator[tuple[str, str, int], None, None]:
+    """'kaynak -> hedef yakit' formatındaki satırlardan (kaynak, hedef, yakit) demeti üretir."""
+    for satir in satirlar:
+        if "->" in satir:
+            kaynak, hedef_yakit = satir.split("->", 1)
+            hedef, yakit_str = hedef_yakit.strip().rsplit(None, 1)
+            yield (kaynak.strip(), hedef.strip(), int(yakit_str))
+
+
+def uzun_yolculuklar(kayitlar: Iterable[tuple[str, str, int]], esik: int) -> Generator[tuple[str, str, int], None, None]:
+    """Yakıt miktarı verilen eşikten büyük olan kayıtları süzen üreteç."""
+    for kayit in kayitlar:
+        if kayit[2] > esik:
+            yield kayit
