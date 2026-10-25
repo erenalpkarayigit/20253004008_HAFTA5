@@ -46,3 +46,25 @@ def log_cagri(fonksiyon: Callable[..., Any]) -> Callable[..., Any]:
         return sonuc
 
     return sarmalayici
+
+
+def sinirla(alt: float, ust: float) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    """Dekore edilen fonksiyonun ilk argümanının [alt, ust] aralığında olmasını zorunlu kılan dekoratör."""
+    def dekorator(fonksiyon: Callable[..., Any]) -> Callable[..., Any]:
+        @wraps(fonksiyon)
+        def sarmalayici(*args: Any, **kwargs: Any) -> Any:
+            if not args:
+                raise ValueError(f"{fonksiyon.__name__}: En az bir argüman almalıdır.")
+            ilk_arg = args[0]
+            if ilk_arg < alt or ilk_arg > ust:
+                raise ValueError(
+                    f"{fonksiyon.__name__}: {ilk_arg} değeri {alt}-{ust} aralığında değil"
+                )
+            return fonksiyon(*args, **kwargs)
+        return sarmalayici
+    return dekorator
+
+
+@sinirla(0, 100)
+def yakit_harca(miktar: int) -> int:
+    return 100 - miktar
