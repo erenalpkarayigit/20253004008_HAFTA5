@@ -67,3 +67,16 @@ def test_seyir_defteri_boru_hatti():
     kayitlar = ayristir(satirlari_oku(yol))
     assert [h for _, h, _ in uzun_yolculuklar(kayitlar, 10)] == ["sirius", "centauri", "orion", "kara_delik"]
     assert inspect.isgenerator(satirlari_oku(yol))
+
+from uzay_oyunu.akis import rota_sayaci
+import json
+
+
+def test_rota_sayaci():
+    with open(Path(__file__).parent.parent / "uzay_oyunu" / "galaksi.json", "r", encoding="utf-8") as f:
+        galaksi = json.load(f)
+    say = rota_sayaci(galaksi["baglantilar"])
+    assert say("dünya", 3) == 9
+    assert say("dünya", 10) == 2185
+    assert say("dünya", 40) == 16832258606399
+    assert say.cache_info().hits > 0

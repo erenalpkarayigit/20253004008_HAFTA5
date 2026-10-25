@@ -56,3 +56,18 @@ def uzun_yolculuklar(kayitlar: Iterable[tuple[str, str, int]], esik: int) -> Gen
     for kayit in kayitlar:
         if kayit[2] > esik:
             yield kayit
+
+from functools import lru_cache
+from typing import Callable
+
+
+def rota_sayaci(baglantilar: dict[str, list[str]]) -> Callable[[str, int], int]:
+    """Verilen gezegen bağlantılarına göre rotaları sayan önbellekli fonksiyon üretir."""
+    @lru_cache(maxsize=None)
+    def rota_sayisi(gezegen: str, adim: int) -> int:
+        if adim == 0:
+            return 1
+        komsular = baglantilar.get(gezegen, [])
+        return sum(rota_sayisi(komsu, adim - 1) for komsu in komsular)
+
+    return rota_sayisi
