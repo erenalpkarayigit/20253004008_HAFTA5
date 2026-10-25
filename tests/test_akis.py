@@ -25,3 +25,33 @@ def test_fibonacci_tek_kullanimlik():
     assert ilk_bes == [0, 1, 1, 2, 3]
     assert ikinci_bes == [5, 8, 13, 21, 34]
     assert ilk_bes != ikinci_bes
+
+import pytest
+from uzay_oyunu.akis import yakit_gostergesi
+from uzay_oyunu.oyun import travel
+
+
+def test_yakit_gostergesi_ornek_cikti():
+    assert list(yakit_gostergesi(100, 30)) == [70, 40, 10, 0]
+
+
+def test_yakit_gostergesi_stop_iteration():
+    g = yakit_gostergesi(50, 25)
+    assert next(g) == 25
+    assert next(g) == 0
+    with pytest.raises(StopIteration):
+        next(g)
+
+
+def test_travel_stop_iteration_yakit_bitti(capsys):
+    galaksi = {
+        "gezegenler": ["dünya", "centauri"],
+        "baglantilar": {"dünya": ["centauri"], "centauri": []},
+        "baslangic": "dünya",
+        "konum": "dünya",
+        "yakit": 10,
+    }
+    hamleler = iter(["1", "1"])
+    travel(galaksi, girdi_saglayici=lambda _: next(hamleler), tuketim=10)
+    out = capsys.readouterr().out
+    assert "Yakıtın bitti, uzayda sürükleniyorsun…" in out

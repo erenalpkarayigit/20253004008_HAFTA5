@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from uzay_oyunu.akis import yakit_gostergesi
 from uzay_oyunu.araclar import hamle_sayaci
 
 
@@ -119,15 +120,19 @@ def galaksi_kur(
 def travel(
     galaksi: dict[str, Any] | None = None,
     girdi_saglayici: Any = None,
+    tuketim: int = 5,
 ) -> int:
     """Uzay yolculuğu oyun döngüsünü yürütür.
 
     Elle yazılmış hedefler yerine galaksi haritası bağlantılarını kullanır.
+    Her yolculukta yakit_gostergesi üretecinden bir değer çeker.
+    Yakıt bittiğinde (StopIteration) oyunu sonlandırır.
     Her yolculukta hamle sayacını çağırır ve oyun sonunda toplam hamle sayısını yazdırır.
 
     Args:
         galaksi: Kullanılacak galaksi verisi. Verilmezse galaksi.json dosyasından yüklenir.
         girdi_saglayici: Testler veya otomatik çalıştırma için girdi fonksiyonu.
+        tuketim: Her yolculukta eksilecek yakıt miktarı (varsayılan 5).
 
     Returns:
         int: Oyunda yapılan toplam hamle sayısı.
@@ -141,6 +146,9 @@ def travel(
     sayac = hamle_sayaci()
     toplam_hamle = 0
 
+    # Görev 2: Oyunun başında galaksideki yakıt değeriyle bir gösterge üreteci oluştur
+    gosterge = yakit_gostergesi(galaksi["yakit"], tuketim)
+
     has_credits = True
     has_engines = False
     has_copilot = True
@@ -152,7 +160,7 @@ def travel(
 
     input_fn = girdi_saglayici if girdi_saglayici is not None else input
 
-    while galaksi["yakit"] > 0:
+    while True:
         mevcut_konum = galaksi["konum"]
         print(f"\nŞu anki konum: {mevcut_konum} (Kalan Yakıt: {galaksi['yakit']})")
 
@@ -173,9 +181,15 @@ def travel(
             print("Oyun sonlandırıldı.")
             break
 
+        # Görev 2: Her yolculukta göstergeden bir değer çek
+        try:
+            galaksi["yakit"] = next(gosterge)
+        except StopIteration:
+            print("Yakıtın bitti, uzayda sürükleniyorsun…")
+            break
+
         hedef_gezegen = hedefler[secim_index]
         galaksi["konum"] = hedef_gezegen
-        galaksi["yakit"] -= 10
         toplam_hamle = sayac()
 
         print(f"--> {hedef_gezegen} gezegenine ulaşıldı!")
