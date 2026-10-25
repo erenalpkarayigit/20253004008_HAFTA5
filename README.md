@@ -54,7 +54,20 @@ Tüm dekoratörler `functools.wraps` kullanır. Eski ve yeni tüm testler `uv ru
 - `sure_olc(fonksiyon)`: Fonksiyonun çalışma süresini `time.perf_counter()` ile ölçüp `“ad: 0.0123 sn”` formatında ekrana yazdırır ve fonksiyonun orijinal dönüş değerini iletir.
 - `functools.wraps` kullanılarak `__name__` ve `__doc__` meta verileri korunmuştur.
 - Konumsal (`*args`) ve anahtar kelime (`**kwargs`) argümanlarını eksiksiz destekler.
-- Hafta 4'teki önbelleksiz rota sayacına uygulanarak performansı doğrulanmıştır.
+- **Hafta 4'teki önbelleksiz rota sayacına uygulanıp `adim=20` için süre ölçülmüştür:**
+  - Fonksiyon: `rota_sayisi_onbelleksiz("dünya", 20)`
+  - Sonuç: `4.315.343` rota
+  - Konsol Çıktısı: `rota_sayisi_onbelleksiz: 0.7449 sn`
+  - `python -m uzay_oyunu.dekoratorler` komutu ile doğrudan çalıştırılıp görüntülenebilir.
+
+#### Hafta 4 - Önbellekli Rota Sayacı Karşılaştırma Ölçümleri (`adim = 20` için):
+
+| Metrik | Önbelleksiz Sürüm | Önbellekli Sürüm (`@lru_cache`) |
+| :--- | :--- | :--- |
+| **Sonuç (Rota Sayısı)** | 4.315.343 | 4.315.343 |
+| **Çalışma Süresi** | ~0.7449 saniye | ~0.000064 saniye |
+| **Hızlanma Çarpanı** | 1x (Referans) | **~11.500 kat daha hızlı** |
+| **`cache_info()` Çıktısı** | Yok | `CacheInfo(hits=47, misses=51, maxsize=None, currsize=51)` |
 
 ### Görev 2 – Çağrı Sayacı ve Dekoratör Sırası (`uzay_oyunu/dekoratorler.py` & `dekorator_sirasi.md`)
 - `say(fonksiyon)`: Her çağrıda `sarmalayici.cagri` niteliğini 1 artıran çağrı sayacı dekoratörü yazıldı.
