@@ -79,6 +79,30 @@ def test_sure_olc_format_ve_hafta4_rota_sayaci(capsys):
     assert "sn" in yakalanan
 
 
+def test_sure_olc_hafta4_rota_sayaci_adim_20(capsys):
+    """Hafta 4'teki önbelleksiz rota sayacına uygulanıp adim=20 için süreyi gösterir."""
+    json_yolu = Path(__file__).parent.parent / "uzay_oyunu" / "galaksi.json"
+    with open(json_yolu, "r", encoding="utf-8") as f:
+        galaksi = json.load(f)
+    baglantilar = galaksi["baglantilar"]
+
+    def rota_sayisi_onbelleksiz(gezegen: str, adim: int) -> int:
+        if adim == 0:
+            return 1
+        return sum(
+            rota_sayisi_onbelleksiz(komsu, adim - 1)
+            for komsu in baglantilar.get(gezegen, [])
+        )
+
+    olculen = sure_olc(rota_sayisi_onbelleksiz)
+    sonuc = olculen("dünya", 20)
+    assert sonuc == 4315343
+
+    yakalanan = capsys.readouterr().out
+    assert "rota_sayisi_onbelleksiz:" in yakalanan
+    assert "sn" in yakalanan
+
+
 # ==============================================================================
 # Görev 2 Testleri – Çağrı Sayacı ve Dekoratör Sırası (20 Puan)
 # ==============================================================================
