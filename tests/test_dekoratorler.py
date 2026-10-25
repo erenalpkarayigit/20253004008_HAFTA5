@@ -33,3 +33,35 @@ def test_sure_olc_format(capsys):
     out = capsys.readouterr().out
     assert "ornek:" in out
     assert "sn" in out
+
+from functools import lru_cache
+from uzay_oyunu.dekoratorler import say
+
+
+def test_say_yalnizca_fibonacci_21891():
+    @say
+    def fib1(n: int) -> int:
+        if n < 2: return n
+        return fib1(n - 1) + fib1(n - 2)
+    assert fib1(20) == 6765
+    assert fib1.cagri == 21891
+
+
+def test_say_ustte_lru_altta_39():
+    @say
+    @lru_cache(maxsize=None)
+    def fib2(n: int) -> int:
+        if n < 2: return n
+        return fib2(n - 1) + fib2(n - 2)
+    assert fib2(20) == 6765
+    assert fib2.cagri == 39
+
+
+def test_lru_ustte_say_altta_21():
+    @lru_cache(maxsize=None)
+    @say
+    def fib3(n: int) -> int:
+        if n < 2: return n
+        return fib3(n - 1) + fib3(n - 2)
+    assert fib3(20) == 6765
+    assert fib3.__wrapped__.cagri == 21
