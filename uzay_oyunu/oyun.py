@@ -10,6 +10,7 @@ from typing import Any
 
 from uzay_oyunu.akis import yakit_gostergesi
 from uzay_oyunu.araclar import hamle_sayaci
+from uzay_oyunu.dekoratorler import log_cagri
 
 
 def envanter_metni(credits: bool, engines: bool, copilot: bool) -> str:
@@ -46,10 +47,11 @@ def envanter_metni(credits: bool, engines: bool, copilot: bool) -> str:
     return f"Sende: {', '.join(esyalar)}"
 
 
+@log_cagri
 def hedef_menusu(hedefler: list[str]) -> str:
     """Verilen hedef listesini numaralandırarak menü metni olarak döndürür.
 
-    Fonksiyon saf (pure) bir fonksiyondur, ekrana print yapmaz.
+    Fonksiyon saf (pure) bir fonksiyondur, log_cagri dekoratörü ile çağrıları loglanır.
 
     Args:
         hedefler: Gidilebilecek hedef gezegenlerin isim listesi.
@@ -69,6 +71,7 @@ def hedef_menusu(hedefler: list[str]) -> str:
     return "\n".join(satirlar)
 
 
+@log_cagri
 def galaksi_kur(
     gezegenler: list[str],
     baglantilar: dict[str, list[str]],
@@ -124,10 +127,9 @@ def travel(
 ) -> int:
     """Uzay yolculuğu oyun döngüsünü yürütür.
 
-    Elle yazılmış hedefler yerine galaksi haritası bağlantılarını kullanır.
-    Her yolculukta yakit_gostergesi üretecinden bir değer çeker.
-    Yakıt bittiğinde (StopIteration) oyunu sonlandırır.
-    Her yolculukta hamle sayacını çağırır ve oyun sonunda toplam hamle sayısını yazdırır.
+    Komut sistemini (yardim, envanter, harita) destekler.
+    Girdi bir komut adıysa komutu çalıştırıp aynı menüyü tekrar gösterir.
+    Girdi sayı ise hedef gezegene seyahat eder.
 
     Args:
         galaksi: Kullanılacak galaksi verisi. Verilmezse galaksi.json dosyasından yüklenir.
@@ -137,6 +139,8 @@ def travel(
     Returns:
         int: Oyunda yapılan toplam hamle sayısı.
     """
+    from uzay_oyunu.komutlar import KOMUTLAR
+
     if galaksi is None:
         json_yolu = Path(__file__).parent / "galaksi.json"
         with open(json_yolu, "r", encoding="utf-8") as dosya:
@@ -152,6 +156,15 @@ def travel(
     has_credits = True
     has_engines = False
     has_copilot = True
+
+    durum = {
+        "konum": galaksi["konum"],
+        "baglantilar": galaksi["baglantilar"],
+        "credits": has_credits,
+        "engines": has_engines,
+        "copilot": has_copilot,
+        "yakit": galaksi["yakit"],
+    }
 
     print("=== Uzay Oyunu Başladı! ===")
     env_str = envanter_metni(has_credits, has_engines, has_copilot)
@@ -173,7 +186,17 @@ def travel(
 
         try:
             secim_raw = input_fn("Seçiminiz: ")
-            secim_index = int(secim_raw) - 1
+            girdi_temiz = str(secim_raw).strip().lower()
+
+            # Görev 4: Komut kontrolü
+            if girdi_temiz in KOMUTLAR:
+                komut_fn, _ = KOMUTLAR[girdi_temiz]
+                durum["konum"] = galaksi["konum"]
+                durum["yakit"] = galaksi["yakit"]
+                print(komut_fn(durum))
+                continue
+
+            secim_index = int(girdi_temiz) - 1
             if not (0 <= secim_index < len(hedefler)):
                 print("Geçersiz seçim, tekrar deneyin.")
                 continue

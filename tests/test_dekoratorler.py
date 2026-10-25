@@ -65,3 +65,16 @@ def test_lru_ustte_say_altta_21():
         return fib3(n - 1) + fib3(n - 2)
     assert fib3(20) == 6765
     assert fib3.__wrapped__.cagri == 21
+
+from uzay_oyunu.dekoratorler import log_cagri
+
+
+def test_log_cagri_formati(capsys):
+    @log_cagri
+    def yolculuk(hedef: str, hiz: int = 1) -> str:
+        return f"{hedef} hiz={hiz}"
+    sonuc = yolculuk("orion", hiz=3)
+    assert sonuc == "orion hiz=3"
+    cikti = capsys.readouterr().out
+    assert "-> yolculuk('orion', hiz=3)" in cikti
+    assert "<- yolculuk = 'orion hiz=3'" in cikti
